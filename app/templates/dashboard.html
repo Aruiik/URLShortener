@@ -1,0 +1,338 @@
+
+{% extends "base.html" %}
+
+{% block title %}ShortLink - Dashboard{% endblock %}
+
+{% block content %}
+
+<section class="dashboard-header">
+    <div>
+        <span class="eyebrow">CENTRUM ZARZĄDZANIA</span>
+        <h1>Dashboard</h1>
+        <p>Zarządzaj swoimi skróconymi linkami i sprawdzaj ich statystyki.</p>
+    </div>
+
+    <a href="{{ url_for('main.index') }}" class="primary-link">
+        + Nowy link
+    </a>
+</section>
+
+<section class="stats-grid">
+
+    <div class="stat-card">
+        <div class="stat-icon">↗</div>
+        <span>Wszystkie linki</span>
+        <strong>{{ total_links }}</strong>
+        <small>Liczba utworzonych skrótów</small>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon">⌁</div>
+        <span>Wszystkie kliknięcia</span>
+        <strong>{{ total_clicks }}</strong>
+        <small>Łączna liczba kliknięć</small>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon">◷</div>
+        <span>Średnia kliknięć</span>
+        <strong>{{ average_clicks }}</strong>
+        <small>Na jeden skrócony link</small>
+    </div>
+
+</section>
+
+<section class="links-section">
+
+    <div class="section-heading">
+        <div>
+            <h2>Twoje linki</h2>
+            <p>Zarządzaj wszystkimi utworzonymi adresami.</p>
+        </div>
+
+        <span class="links-count">
+            {{ total_links }} pozycji
+        </span>
+    </div>
+
+    {% if urls %}
+
+
+        <div class="table-toolbar">
+
+            <div class="search-box">
+                <span>⌕</span>
+                <input
+                    type="search"
+                    id="linkSearch"
+                    placeholder="Szukaj linku..."
+                    aria-label="Szukaj skróconych i oryginalnych adresów"
+                >
+            </div>
+
+            <div class="sort-controls">
+                <label for="sortSelect">Sortuj według:</label>
+
+                <select id="sortSelect">
+                    <option value="created">Daty utworzenia</option>
+                    <option value="clicks">Liczby kliknięć</option>
+                    <option value="code">Skróconego kodu</option>
+                </select>
+
+                <button
+                    type="button"
+                    id="sortDirection"
+                    class="sort-direction"
+                    data-direction="desc"
+                    aria-label="Zmień kierunek sortowania"
+                >
+                    ↓ Malejąco
+                </button>
+            </div>
+
+            <span class="search-results" id="searchResults">
+                Wyświetlono {{ total_links }} linków
+            </span>
+
+        </div>
+
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Skrócony link</th>
+                        <th>Oryginalny adres</th>
+                        <th>Kliknięcia</th>
+                        <th>Data utworzenia</th>
+                        <th>Akcje</th>
+                    </tr>
+                </thead>
+
+                <tbody id="linksTableBody">
+                    {% for url in urls %}
+                        {% set short_url = url_for(
+                            'main.redirect_to_url',
+                            short_code=url.short_code,
+                            _external=True
+                        ) %}
+
+                        <tr
+                            data-link-row
+                            data-search="{{ (url.short_code ~ ' ' ~ url.original_url)|lower }}"
+                            data-code="{{ url.short_code }}"
+                            data-clicks="{{ url.clicks }}"
+                            data-created="{{ url.created_at.isoformat() }}"
+                        >
+                            <td>
+                                <div class="short-link-cell">
+                                    <a
+                                        href="{{ url_for('main.redirect_to_url', short_code=url.short_code) }}"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        class="short-link"
+                                    >
+                                        {{ url.short_code }}
+                                    </a>
+
+                                    <button
+                                        type="button"
+                                        class="copy-button"
+                                        data-copy="{{ short_url }}"
+                                    >
+                                        Kopiuj
+                                    </button>
+                                </div>
+                            </td>
+
+                            <td class="original-url">
+                                <a
+                                    href="{{ url.original_url }}"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    title="{{ url.original_url }}"
+                                >
+                                    {{ url.original_url }}
+                                </a>
+                            </td>
+
+                            <td>
+                                <span class="click-count">
+                                    {{ url.clicks }}
+                                </span>
+                            </td>
+
+                            <td class="date-cell">
+                                {{ url.created_at.strftime('%d.%m.%Y %H:%M') }}
+                            </td>
+
+                            <td>
+                                <div class="table-actions">
+                                    <button
+                                        type="button"
+                                        class="details-toggle"
+                                        aria-expanded="false"
+                                        aria-controls="details-{{ url.id }}"
+                                        data-details-toggle
+                                    >
+                                        Szczegóły
+                                        <span class="toggle-arrow">⌄</span>
+                                    </button>
+
+                                    <form
+                                        method="POST"
+                                        action="{{ url_for('main.delete_url', url_id=url.id) }}"
+                                        onsubmit="return confirm('Czy na pewno chcesz usunąć ten link?');"
+                                    >
+                                        <button type="submit" class="delete-button">
+                                            Usuń
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr
+                            class="details-row"
+                            id="details-{{ url.id }}"
+                            data-details-row
+                        >
+                            <td colspan="5">
+                                <div class="details-animation">
+                                    <div class="details-animation-inner">
+                                        <div class="inline-details">
+
+                                            <div class="inline-details-heading">
+                                                <h3>Szczegóły linku</h3>
+                                                <span>Informacje o skróconym adresie</span>
+                                            </div>
+
+                                            <div class="inline-details-grid">
+
+                                                <div class="inline-detail-item">
+                                                    <span>Oryginalny adres URL</span>
+                                                    <a
+                                                        href="{{ url.original_url }}"
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                    >
+                                                        {{ url.original_url }}
+                                                    </a>
+                                                </div>
+
+                                                <div class="inline-detail-item">
+                                                    <span>Skrócony adres URL</span>
+                                                    <div class="inline-detail-value">
+                                                        <a
+                                                            href="{{ short_url }}"
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                        >
+                                                            {{ short_url }}
+                                                        </a>
+
+                                                        <button
+                                                            type="button"
+                                                            class="copy-button"
+                                                            data-copy="{{ short_url }}"
+                                                        >
+                                                            Kopiuj
+                                                        </button>
+                                                    </div>
+                                                </div>
+
+                                                <div class="inline-detail-item">
+                                                    <span>Data utworzenia</span>
+                                                    <strong>
+                                                        {{ url.created_at.strftime('%d.%m.%Y %H:%M') }}
+                                                    </strong>
+                                                </div>
+
+                                                <div class="inline-detail-item">
+                                                    <span>Identyfikator rekordu</span>
+                                                    <strong>#{{ url.id }}</strong>
+                                                </div>
+
+                                                <div class="inline-detail-item">
+                                                    <span>Łączna liczba kliknięć</span>
+                                                    <strong>{{ url.clicks }}</strong>
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+
+        <div class="pagination">
+
+            <div class="pagination-size">
+                <label for="pageSize">Linków na stronie:</label>
+
+                <select id="pageSize">
+                    <option value="5">5</option>
+                    <option value="10" selected>10</option>
+                    <option value="20">20</option>
+                </select>
+            </div>
+
+            <div class="pagination-navigation">
+                <button
+                    type="button"
+                    id="previousPage"
+                    class="pagination-button"
+                    disabled
+                >
+                    ← Poprzednia
+                </button>
+
+                <span id="pageInfo">
+                    Strona 1 z 1
+                </span>
+
+                <button
+                    type="button"
+                    id="nextPage"
+                    class="pagination-button"
+                    disabled
+                >
+                    Następna →
+                </button>
+            </div>
+
+        </div>
+
+
+        <div class="no-search-results" id="noSearchResults" hidden>
+            <h3>Nie znaleziono linków</h3>
+            <p>Spróbuj zmienić wpisaną frazę.</p>
+        </div>
+
+    {% else %}
+
+        <div class="empty-state">
+            <div class="empty-icon">⌁</div>
+            <h3>Nie masz jeszcze żadnych linków</h3>
+            <p>Utwórz pierwszy skrócony link, aby zobaczyć go tutaj.</p>
+
+            <a href="{{ url_for('main.index') }}" class="primary-link">
+                Skróć pierwszy link
+            </a>
+        </div>
+
+    {% endif %}
+
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

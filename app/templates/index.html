@@ -1,0 +1,110 @@
+
+{% extends "base.html" %}
+
+{% block title %}ShortLink - Skracanie linków{% endblock %}
+
+{% block content %}
+
+<section class="hero">
+    <div class="hero-content">
+        <span class="eyebrow">PROSTY SPOSÓB NA KRÓTKIE LINKI</span>
+
+        <h1>Skracaj długie adresy URL.</h1>
+
+        <p>
+            Zamień długie i nieporęczne adresy internetowe
+            w krótkie linki, którymi łatwo się dzielić.
+        </p>
+
+
+        <form method="POST" class="shortener-form">
+
+            <div class="form-group url-input-group">
+                <label for="original_url">Adres URL</label>
+
+                <input
+                    type="url"
+                    id="original_url"
+                    name="original_url"
+                    value="{{ original_url_value }}"
+                    placeholder="Wklej tutaj swój adres URL..."
+                    required
+                >
+            </div>
+
+            <div class="form-group custom-code-group">
+                <label for="custom_code">
+                    Własny kod <span>(opcjonalnie)</span>
+                </label>
+
+                <div class="custom-code-input">
+                    <span class="custom-code-prefix">/</span>
+
+                    <input
+                        type="text"
+                        id="custom_code"
+                        name="custom_code"
+                        value="{{ custom_code_value }}"
+                        placeholder="np. moj-projekt"
+                        minlength="3"
+                        maxlength="10"
+                        pattern="[A-Za-z0-9][A-Za-z0-9-]{1,8}[A-Za-z0-9]"
+                        autocomplete="off"
+                    >
+                </div>
+
+                <small>
+                    Od 3 do 10 znaków. Litery, cyfry i myślniki.
+                    Pozostaw puste, aby wygenerować kod automatycznie.
+                </small>
+            </div>
+
+            <button type="submit">
+                Skróć link
+            </button>
+
+        </form>
+
+
+        {% if short_url %}
+            <div class="result-box">
+                <div>
+                    <span class="result-label">Twój skrócony link:</span>
+                    <a href="{{ short_url }}" target="_blank">
+                        {{ short_url }}
+                    </a>
+                </div>
+
+                <button
+                    type="button"
+                    class="copy-button"
+                    onclick="copyLink('{{ short_url }}')"
+                >
+                    Kopiuj
+                </button>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+<section class="features">
+    <div class="feature-card">
+        <div class="feature-icon">↗</div>
+        <h3>Szybkie skracanie</h3>
+        <p>Generuj krótkie adresy URL w kilka sekund.</p>
+    </div>
+
+    <div class="feature-card">
+        <div class="feature-icon">⌁</div>
+        <h3>Statystyki kliknięć</h3>
+        <p>Monitoruj popularność swoich skróconych linków.</p>
+    </div>
+
+    <div class="feature-card">
+        <div class="feature-icon">✓</div>
+        <h3>Prosta obsługa</h3>
+        <p>Wszystkie linki przechowuj w jednym miejscu.</p>
+    </div>
+</section>
+
+{% endblock %}

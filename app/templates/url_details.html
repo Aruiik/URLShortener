@@ -1,0 +1,109 @@
+
+{% extends "base.html" %}
+
+{% block title %}ShortLink - Szczegóły linku{% endblock %}
+
+{% block content %}
+
+<section class="details-header">
+    <div>
+        <span class="eyebrow">CENTRUM ZARZĄDZANIA</span>
+        <h1>Szczegóły linku</h1>
+        <p>Informacje dotyczące wybranego skróconego adresu.</p>
+    </div>
+
+    <a href="{{ url_for('main.dashboard') }}" class="secondary-link">
+        ← Powrót do dashboardu
+    </a>
+</section>
+
+<section class="details-card">
+
+    <div class="details-card-heading">
+        <div>
+            <span class="details-label">SKRÓCONY ADRES</span>
+            <h2>{{ url.short_code }}</h2>
+        </div>
+
+        <span class="status-indicator">
+            Aktywny
+        </span>
+    </div>
+
+    <div class="details-url-box">
+        <a
+            href="{{ short_url }}"
+            target="_blank"
+            rel="noopener noreferrer"
+        >
+            {{ short_url }}
+        </a>
+
+        <button
+            type="button"
+            class="copy-button"
+            data-copy="{{ short_url }}"
+        >
+            Kopiuj link
+        </button>
+    </div>
+
+    <div class="details-divider"></div>
+
+    <div class="details-information">
+        <div class="detail-item">
+            <span>Oryginalny adres URL</span>
+
+            <a
+                href="{{ url.original_url }}"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="original-detail-url"
+            >
+                {{ url.original_url }}
+            </a>
+        </div>
+
+        <div class="detail-item">
+            <span>Liczba kliknięć</span>
+            <strong>{{ url.clicks }}</strong>
+        </div>
+
+        <div class="detail-item">
+            <span>Data utworzenia</span>
+            <strong>{{ url.created_at.strftime('%d.%m.%Y %H:%M') }}</strong>
+        </div>
+
+        <div class="detail-item">
+            <span>Identyfikator rekordu</span>
+            <strong>#{{ url.id }}</strong>
+        </div>
+    </div>
+
+    <div class="details-footer">
+        <a
+            href="{{ short_url }}"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="primary-link"
+        >
+            Otwórz skrócony link
+        </a>
+
+        <a
+            href="{{ url.original_url }}"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="secondary-link"
+        >
+            Otwórz oryginalną stronę
+        </a>
+    </div>
+
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

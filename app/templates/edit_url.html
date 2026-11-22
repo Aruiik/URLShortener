@@ -1,0 +1,58 @@
+
+{% extends "base.html" %}
+
+{% block title %}ShortLink - Edycja linku{% endblock %}
+
+{% block content %}
+
+<section class="edit-header">
+    <span class="eyebrow">ZARZĄDZANIE LINKAMI</span>
+    <h1>Edytuj link</h1>
+    <p>Zmień adres docelowy swojego skróconego linku.</p>
+</section>
+
+<section class="edit-card">
+
+    <div class="edit-information">
+        <span>Skrócony kod</span>
+        <strong>{{ url.short_code }}</strong>
+    </div>
+
+    <div class="edit-information">
+        <span>Liczba kliknięć</span>
+        <strong>{{ url.clicks }}</strong>
+    </div>
+
+    <form method="POST" class="edit-form">
+
+        <div class="form-group">
+            <label for="original_url">Nowy adres docelowy</label>
+
+            <input
+                type="url"
+                id="original_url"
+                name="original_url"
+                value="{{ original_url_value }}"
+                placeholder="https://example.com"
+                required
+            >
+        </div>
+
+        <div class="edit-actions">
+            <button type="submit" class="primary-link">
+                Zapisz zmiany
+            </button>
+
+            <a
+                href="{{ url_for('main.dashboard') }}"
+                class="edit-cancel"
+            >
+                Anuluj
+            </a>
+        </div>
+
+    </form>
+
+</section>
+
+{% endblock %}
